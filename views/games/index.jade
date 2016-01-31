@@ -1,0 +1,24 @@
+extends ../layout
+
+block content
+  h1= title
+  p Welcome to Index.jade
+
+  h3 Add Game
+  fieldset
+    form(method="post", action='/games')
+      input(name='title' placeholder= 'Title')
+      input(name='genre' placeholder= 'Genre')
+      input(name='platforms' placeholder= 'Platforms')
+      input(name='publisher' placeholder= 'Publisher')
+      input(name='releaseYear' placeholder= 'Release Year')
+      input(type='submit' value='submit')
+
+  ul
+    each game in games
+      li
+        form(method='POST', action='/games/#{game._id}?_method=DELETE')
+            button(type='submit') Delete
+        p= game.title
+        p= game.id
+

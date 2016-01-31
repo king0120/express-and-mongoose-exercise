@@ -15,63 +15,58 @@ var Game = require("../models/games");
 // releaseYear: String,
 
 router.route('/')
+  //INDEX
   .get(function(req, res, next) {
-    Game.find({}, function(err, games) {
+    Game.find(function(err, games) {
       if (err) return console.error(err);
-      res.format({
-        json: function() {
-          res.json(games);
-        }
+      console.log(games);
+      res.render('./games/index', {
+        games: games
       });
     });
-    //res.json({message: 'GREAT SCOTT! It Works!'});
   })
+  //POST
   .post(function(req, res) {
-    Game.create(req.body, function (err, game) {
-            if (err) {
-                res.send("There was a problem adding the information to the database.");
-            } else {
-                console.log('POST creating new game: ' + game);
-                res.format({
-                  json: function(){
-                      res.json(game);
-                  }
-              });
-            }
-      });
+    Game.create(req.body, function(err, game) {
+      if (err) {
+        res.send("There was a problem adding the information to the database.");
+      } else {
+        console.log('POST creating new game: ' + game);
+        res.redirect('games');
+      }
+    });
   });
 
 router.route('/:id')
-  .get(function(req, res){
-    Game.findById(req.params.id, function(err, game){
+  .get(function(req, res) {
+    Game.findById(req.params.id, function(err, game) {
       if (err) return res.send(err);
-      res.json(game);
-    });
-  })
-  .delete(function(req, res){
-    Game.findById(req.params.id, function(err, game){
-      if (err) return console.error(err);
-      game.remove(function(err, game){
-        if (err) return console.error(err);
-        console.log('Delete removing ID: ' + game._id);
-        res.format({
-          json: function(){
-            res.json({
-              message: 'deleted',
-              item: game
-            });
-          }
-        });
-      });
+      res.render('./games/show');
     });
   });
+router.delete('/:id', function(req, res, next) {
+  Game.findByIdAndRemove(req.params.id, function(err, game) {
+    if (err) throw err;
+    console.log('Delete removing ID: ' + game._id);
+    res.redirect('./');
+  });
+});
 
-
-  // .put(function(req, res){
-  //   Game.findById(req.params.id, function(err, game){
-  //     if (err) return res.send(err);
-
-  //   })
-  // });
+router.put('/:id/edit', function(req, res) {
+  Game.findOneAndUpdate(req.params.id,
+    req.body, {
+      new: true
+    },
+    function(err, game) {
+      if (err) res.send('There was a problem.  ' + err);
+      else
+        res.format({
+          json: function() {
+            res.json(game);
+          }
+        });
+    }
+  );
+});
 
 module.exports = router;
